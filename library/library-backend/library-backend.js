@@ -121,6 +121,7 @@ const typeDefs = `
     authorCount: Int!
     allBooks: [Book!]!
     allAuthors: [Author!]!
+    allGenres: [String!]!
     me: User
   }
 
@@ -204,6 +205,11 @@ const resolvers = {
     },
     allAuthors: async () => {
       return Author.find({})
+    },
+    allGenres: async () => {
+      const result = await Book.find().distinct('genres')
+      console.log(result)
+      return result
     },
     me: (root, args, context) => {
       return context.currentUser
