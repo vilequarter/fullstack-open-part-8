@@ -8,6 +8,10 @@ const Authors = (props) => {
 
   const result = useQuery(ALL_AUTHORS)
   const [ setBirthYear ] = useMutation(SET_BIRTH_YEAR, {
+    onError: (error) => {
+      const messages = error.graphQLErrors.map(e => e.message).join('\n')
+      props.notify(messages)
+    },
     refetchQueries: [ { query: ALL_AUTHORS }]
   })
 
@@ -30,6 +34,7 @@ const Authors = (props) => {
 
     setName('')
     setBorn('')
+    props.notify('author successfully updated')
   }
 
   return (
