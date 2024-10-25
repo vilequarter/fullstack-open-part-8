@@ -1,28 +1,14 @@
-import { useQuery } from '@apollo/client'
-import { FILTERED_BOOKS, ME } from './queries'
-import { useEffect } from 'react'
-
 const Recommends = (props) => {
-  const user = useQuery(ME)
-  const genre = (user.data ? user.data.me.favoriteGenre : null)
-  const booksResult = useQuery(FILTERED_BOOKS)
-
-  useEffect(() => {
-    booksResult.refetch({
-      genre: genre
-    })
-  }, [genre])
-
   if(!props.show) {
     return null
   }
 
-  const books = (booksResult.data ? booksResult.data.allBooks : [])
+  const books = (props.recommendBooks.data ? props.recommendBooks.data.allBooks : [])
 
   return (
     <div>
       <h2>recommendations</h2>
-      <div>based on your favorite genre: <b>{genre}</b></div>
+      <div>based on your favorite genre: <b>{props.favoriteGenre}</b></div>
 
       <table>
         <tbody>

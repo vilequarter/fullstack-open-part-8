@@ -208,7 +208,6 @@ const resolvers = {
     },
     allGenres: async () => {
       const result = await Book.find().distinct('genres')
-      console.log(result)
       return result
     },
     me: (root, args, context) => {
@@ -266,8 +265,8 @@ const resolvers = {
           }
         })
       }
-      console.log(book)
-      return book
+      const returnedBook = await Book.findById(book._id).populate(('author'))
+      return returnedBook
     },
 
     editAuthor: async (root, args, context) => {

@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client"
 import { LOGIN } from "./queries"
 import { useEffect, useState } from "react"
 
-const Login = ({show, setToken, setPage, notify}) => {
+const Login = ({show, setToken, setPage, notify, refetch}) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [ login, result ] = useMutation(LOGIN, {
@@ -16,6 +16,7 @@ const Login = ({show, setToken, setPage, notify}) => {
       const token = result.data.login.value
       setToken(token)
       localStorage.setItem('library-user-token', token)
+      refetch()
     }
   }, [result.data])
 
