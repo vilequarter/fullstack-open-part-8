@@ -1,17 +1,47 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, useApolloClient, useSubscription } from "@apollo/client";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import Login from "./components/Login";
 import Notify from "./components/Notify";
-import { useApolloClient } from "@apollo/client";
 import Recommends from "./components/Recommends";
-import { CREATE_BOOK, ALL_AUTHORS, FILTERED_BOOKS, ME } from "./components/queries";
+import { CREATE_BOOK, ALL_AUTHORS, FILTERED_BOOKS, ME, BOOK_ADDED } from "./components/queries";
 
 const App = () => {
   const [page, setPage] = useState("authors")
   const [message, setMessage] = useState(null)
+
+  const updateCache = (cache, query, addedBook) => {
+    const uniqueByName = (a) => {
+      let seen = new Set()
+      return a.filter((item) => {
+        let k = item.name
+        return seen.has(k) ? false : seen.add(k)
+      })
+    }
+
+    cache.updateQuery(query, ({ allAuthors }) => {
+      return {
+        allAuthors: uniqueByName(allAuthors.concat(addedBook.author))
+      }
+    })
+  }
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const addedBook = data.data.bookAdded
+      notify(`${addedBook.title} added`)
+
+      updateCache(client.cache, { query: ALL_AUTHORS }, addedBook)
+      filteredBooks.refetch({
+        genre: genre
+      })
+      recommendBooks.refetch({
+        genre: favoriteGenre
+      })
+    }
+  })
 
   const notify = (newMessage) => {
     setMessage(newMessage)
@@ -51,11 +81,7 @@ const App = () => {
       notify(messages)
     },
     update: (cache, response) => {
-      cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
-        return {
-          allAuthors: allAuthors.concat(response.data.addBook.author)
-        }
-      })
+      updateCache(cache, { query: ALL_AUTHORS }, response.data.addBook)
       filteredBooks.refetch({
         genre: genre
       })
