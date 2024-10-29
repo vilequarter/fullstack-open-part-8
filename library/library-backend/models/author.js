@@ -11,22 +11,8 @@ const schema = new mongoose.Schema({
   },
   born: {
     type: Number,
-  },
+  }
 })
-
-/*
-schema.virtual('id').get(() => {
-  return this._id.toHexString()
-})
-
-schema.set('toJSON', {
-  virtuals: true
-})
-
-schema.set('toObject', {
-  virtuals: true
-})
-*/
 
 schema.plugin(uniqueValidator)
 
